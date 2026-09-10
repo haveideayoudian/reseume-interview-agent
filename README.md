@@ -15,7 +15,7 @@
 | 组件 | 选型 |
 |------|------|
 | Agent 框架 | Deep Agents (LangChain + LangGraph) |
-| LLM | OpenAI GPT-4o |
+| LLM | 免费LLM，AgensAI |
 | 文件解析 | PyPDF2, python-docx |
 | 开发语言 | Python 3.11+ |
 
