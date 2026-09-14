@@ -4,20 +4,21 @@
 
 ## 功能
 
-- **JD 解析**：自动提取职位描述的关键要求
-- **简历解析**：提取简历的核心信息
-- **匹配度评估**：语义匹配 + 量化评分，指出短板
-- **文字质量评估**：语法、专业性、清晰度三维度检查
-- **STAR 润色**：按 STAR 原则重写项目描述
+- **匹配度分析**：粘贴 JD + 上传简历，输出匹配度评分（0-100）、
+  核心优势、主要短板、针对性优化建议
+- **简历优化**：基于分析结果，按 STAR 原则重写项目描述，
+  量化成果、使用专业动词，生成优化后的完整简历
+- **多格式支持**：简历支持 .txt / .pdf / .docx
 
 ## 技术栈
 
 | 组件 | 选型 |
 |------|------|
 | Agent 框架 | Deep Agents (LangChain + LangGraph) |
-| LLM | 免费LLM，AgensAI |
-| 文件解析 | PyPDF2, python-docx |
-| 开发语言 | Python 3.11+ |
+| LLM | qwen-plus（阿里云百炼 OpenAI 兼容接口） |
+| 后端 | FastAPI |
+| 前端 | Streamlit |
+| 文件解析 | pypdf / python-docx |
 
 ## 快速开始
 
@@ -29,7 +30,7 @@ pip install -r requirements.txt
 
 ### 2. 配置 API Key
 
-复制 `.env.example` 为 `.env` 并填入你的 OpenAI API Key：
+复制 `.env.example` 为 `.env` 并填入你的大模型BaiLian_API_KEY（已创建适配DeepAgents的OpenAI第三方模型，根据需要进行修改）：
 
 ```bash
 cp .env.example .env
@@ -38,28 +39,55 @@ cp .env.example .env
 编辑 `.env`：
 
 ```
-OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxx
+BaiLian_API_KEY=sk-xxxxxxxx
+BaiLian_API_BASE=https://你的endpoint/compatible-mode/v1
 ```
 
-### 3. 运行
+（可选）配置 LangSmith 追踪，便于观察 Agent 的调用链路：
+
+```
+LANGSMITH_TRACING=true
+LANGSMITH_API_KEY=lsv2_xxxxxxxx
+LANGSMITH_PROJECT=resmu-interview
+```
+
+### 3. 运行（需要两个终端）
 
 ```bash
-python src/agent/hello.py
+# 终端 1：启动 API
+python -m uvicorn api.main:app --reload --port 8000
+
+# 终端 2：启动前端
+python -m streamlit run web/app.py
 ```
+
+浏览器打开 http://localhost:8501
 
 ## 项目结构
 
 ```
-resemu_interview/
 ├── src/
-│   ├── agent/        # Agent 相关代码
-│   ├── parsers/      # 文件解析器
-│   ├── evaluators/   # 评估器
-│   └── utils/        # 工具函数
-├── tests/            # 测试代码
-├── api/              # API 接口（后续阶段）
-└── data/             # 示例数据
+│   ├── agents/          # Agent 定义（base: LLM 配置 / matcher / optimizer）
+│   ├── tools/           # 工具函数（file_reader：txt/pdf/docx 解析）
+│   ├── core/            # Prompt 模板（prompts.py）
+│   └── pipeline.py      # 完整流程：matcher → optimizer
+├── api/                 # FastAPI 接口（POST /api/analyze）
+├── web/                 # Streamlit 前端
+├── tests/               # 测试
+├── data/                # 示例 JD / 简历
+├── AGENTS.md            # 开发方法论
+└── TASKS.md             # 开发进度清单
+
 ```
+## 架构说明
+
+Streamlit 前端
+    │ HTTP POST /api/analyze
+    ▼
+FastAPI ──► pipeline.run_pipeline()
+              ├─► matcher Agent（LLM：匹配度 + 短板 + 建议）
+              └─► optimizer Agent（LLM：按建议润色简历）
+
 
 ## License
 

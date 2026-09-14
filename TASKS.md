@@ -25,22 +25,30 @@
 - [x] 验证输出格式正确
 
 ## Phase 4：整合测试
-- [x] 创建 pipeline.py（串联 matcher → optimizer）
+- [x] 创建 `src/pipeline.py`（串联 matcher → optimizer）
 - [x] 测试完整流程（JD + 简历 → 分析 → 优化）
 - [x] 验证优化效果
 
 ## Phase 5：API 接口
-- [ ] 创建 `src/api/main.py`（FastAPI）
-- [ ] 实现 `/analyze` 接口
-- [ ] 测试 API
+- [x] 创建 `api/main.py`（FastAPI）
+- [x] 实现 `/api/analyze` 接口
+- [x] 测试 API（访问 /docs 通过验证）
 
 ## Phase 6：前端界面
-- [ ] 创建 `src/web/app.py`（Streamlit）
-- [ ] 实现文件上传
-- [ ] 展示分析结果
-- [ ] 展示优化后的简历
+- [x] 创建 `web/app.py`（Streamlit）
+- [x] 实现 JD 粘贴 + 简历文件上传
+- [x] 展示匹配度分析结果
+- [x] 展示优化后的简历
 
-## Phase 7：文档与部署
-- [ ] 更新 README.md
-- [ ] 编写使用说明
-- [ ] 测试完整流程
+## Phase 7：工程化收尾
+- [ ] 补全 `requirements.txt`（缺 fastapi / uvicorn / streamlit / requests / pypdf）
+- [ ] 更新 `README.md`（安装、配置、运行、目录结构、架构说明）
+- [ ] 创建一键启动脚本（同时起 API + 前端）
+- [ ] 端到端验收测试（用真实简历 + 真实 JD 跑一遍）
+- [ ] 提交 Git 并推送到 GitHub
+
+## 待办技术债（MVP 之后再处理）
+- [ ] `web/app.py` 里的 `read_uploaded_file` 与 `src/tools/file_reader.py` 逻辑重复，应统一
+- [ ] `analyze_match` / `optimize_resume` 缺少重试与超时控制
+- [ ] 匹配度评分为纯文本，未来可结构化为 JSON 便于前端展示
+- [ ] 无缓存机制，同一份 JD+简历重复分析会重复消耗 token
